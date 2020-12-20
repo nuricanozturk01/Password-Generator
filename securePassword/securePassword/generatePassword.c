@@ -1,25 +1,54 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include<stdio.h>
 #include<stdlib.h>
+#include<stdbool.h>
+#include<windows.h>
+
 
 /*
 	created by qwerty
 */
 
-#define SIZE 9
+
+#define SIZE 10
 #define SIZE_PERSONAL 10
+bool isStrong(char* str,int size)
+{
+	
+	int upper=0, lower=0, special =0 ;
+	for (int i = 0; i < size; ++i)
+	{
+
+		if (*(str + i) >= 'A' && *(str + i) <= 'Z')
+			upper++;
+		else if (*(str + i) >= 'a' && *(str + i) <= 'z')
+			lower++;
+		else if ((*(str + i) >= '!' && *(str + i) <= '@'))
+			special++;//special = special +num
+		
+	}
+	bool flag = false;
+	if (size >= 8)
+		if (lower + upper >= 5)
+			if (special >= 3)
+				flag = true;
+	else flag = false;
+	if (flag) return true;
+	return false;
+}
 // shuffle 
-char* shaker(char* pass)
+
+char* shaker(char* pass,int size)
 {
 	
 	srand(time(NULL));
-	for (int i =0; i< SIZE_PERSONAL; ++i)
+	for (int i =0; i<size; i++)
 	{
+		int j = rand() % size;
+		int tmp = pass[i];
+		pass[i] = pass[j];
+		pass[j] = tmp;
 		
-		int j = rand() % SIZE_PERSONAL;
-		pass[i] ^= pass[j];
-		pass[j] ^= pass[i];
-		pass[i] ^= pass[j];
 	}
 
 	return &pass;
@@ -54,7 +83,6 @@ char* personalPassword(char* password)
 		printf("Must be capital + leter + special <= %d\n ", SIZE_PERSONAL);
 		goto go;
 	}
-
 	srand(time(NULL));
 	for (int i = 0; i < SIZE_PERSONAL; ++i)
 	{
@@ -76,8 +104,7 @@ char* personalPassword(char* password)
 			{
 				char special = '!' + ((rand() % 31));
 				password[c + l + d] = special;
-			}
-			
+			}	
 		}
 		if (c + l + s < SIZE_PERSONAL)
 		{
@@ -112,39 +139,56 @@ char* personalPassword(char* password)
 			{
 				char special = '!' + ((rand() % 31));
 				password[c + l +s+ d] = special;
-			}
-				
+			}			
 		}
-	
-		
 	}
-	shaker(password);
+	shaker(password,SIZE_PERSONAL);
 	
 }
 
 void main()
 {
-	printf("1- automatic password generator\n2- Customized Password Generator.\n");
-	int choose;
-	scanf("%d", &choose);
-	if (choose == 1)
+	for(int i =2 ;i>1;)
 	{
-		char password[SIZE];
-		securePassword(&password);
-		printf("Your password is: ");
-		for (int i = 0; i < SIZE; ++i)
-			printf("%c", password[i]);
+		printf("1- automatic password generator\n2- Customized Password Generator.\n0-EXIT\n9-CLEANER\n");
+		int choose;
+		scanf("%d", &choose);
+
+
+		if (choose == 1)
+		{
+			char password[SIZE];
+			securePassword(&password);
+			bool b = isStrong(&password, SIZE);
+			printf("\nYour password is:");
+			for (int i = 0; i < SIZE; ++i)
+				printf("%c", password[i]);
+			printf("\n");
+			b ? printf("\nYour password is STRONG!\n") : printf("\nYour password NOT SECURE! Please try again...\n");
+
+		}
+
+		if (choose == 2)
+		{
+
+			char passPersonal[SIZE_PERSONAL];
+			printf("Your password is: ");
+			personalPassword(&passPersonal);
+			bool b = isStrong(&passPersonal, SIZE_PERSONAL);
+			printf("Your customized Password is:");
+			for (int i = 0; i < SIZE_PERSONAL; ++i)
+				printf("%c", passPersonal[i]);
+			b ? printf("\nYour password is STRONG!\n") : printf("\nYour password NOT SECURE! Please try again...\n");
+
+		}
+		if (choose == 0) break;
+		if (choose == 9) system("CLS");
+
+
 	}
-	if (choose == 2)
-	{
-		
-		char passPersonal[SIZE_PERSONAL];
-		printf("Your password is: ");
-		personalPassword(&passPersonal);
-		printf("Your customized Password is: ");
-		for (int i = 0; i < SIZE_PERSONAL; ++i)
-			printf("%c", passPersonal[i]);
-	}
+	
+
+	
 	
 	
 	
