@@ -1,6 +1,6 @@
 # Password Generator
- basic password generator
+Basic password generator
 #Version 1.2
-#Added 
-#+saving file
-#+Detect operating system(Windows and Lınux)
+Added\n 
++saving file
++Detect operating system(Windows and Lınux)
