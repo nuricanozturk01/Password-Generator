@@ -2,20 +2,20 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
-#include<windows.h>
+#include<locale.h>
 
 
 /*
-	created by qwerty
+	created by qwerty [version 1.2]
 */
 
 
 #define SIZE 10
 #define SIZE_PERSONAL 10
-bool isStrong(char* str,int size)
+bool isStrong(char* str, int size)
 {
-	
-	int upper=0, lower=0, special =0 ;
+
+	int upper = 0, lower = 0, special = 0;
 	for (int i = 0; i < size; ++i)
 	{
 
@@ -25,30 +25,30 @@ bool isStrong(char* str,int size)
 			lower++;
 		else if ((*(str + i) >= '!' && *(str + i) <= '@'))
 			special++;//special = special +num
-		
+
 	}
 	bool flag = false;
 	if (size >= 8)
 		if (lower + upper >= 5)
 			if (special >= 3)
 				flag = true;
-	else flag = false;
+			else flag = false;
 	if (flag) return true;
 	return false;
 }
 // shuffle 
 
-char* shaker(char* pass,int size)
+char* shaker(char* pass, int size)
 {
-	
+
 	srand(time(NULL));
-	for (int i =0; i<size; i++)
+	for (int i = 0; i < size; i++)
 	{
 		int j = rand() % size;
 		int tmp = pass[i];
 		pass[i] = pass[j];
 		pass[j] = tmp;
-		
+
 	}
 
 	return &pass;
@@ -58,11 +58,11 @@ char* shaker(char* pass,int size)
 char* securePassword(char* chr)
 {
 	srand(time(NULL));
-	for (int a = 0;a < SIZE;a++)
+	for (int a = 0; a < SIZE; a++)
 	{
 		int k;
-		go:	
-		 k= 35+(rand() % 126);
+	go:
+		k = 35 + (rand() % 126);
 		if (k >= 35 && k <= 126)
 			chr[a] = k;
 		else goto go;
@@ -76,7 +76,7 @@ char* personalPassword(char* password)
 	printf("How many capital-letter-(special or num) character?Enter the order.\n");
 	int c, l, s;
 	int g;
-	go:
+go:
 	scanf("%d %d %d", &c, &l, &s);
 	if (c + l + s > SIZE_PERSONAL)
 	{
@@ -88,7 +88,7 @@ char* personalPassword(char* password)
 	{
 		if (c + l + s == SIZE_PERSONAL)
 		{
-			for (int j =0;j<c;++j)
+			for (int j = 0; j < c; ++j)
 			{
 				char capital = 'A' + (rand() % 26);
 				password[j] = capital;
@@ -97,14 +97,14 @@ char* personalPassword(char* password)
 			for (int k = 0; k < l; ++k)
 			{
 				char letter = 'a' + (rand() % 26);
-				password[c+k] = letter;
+				password[c + k] = letter;
 
 			}
 			for (int d = 0; d < s; d++)
 			{
 				char special = '!' + ((rand() % 31));
 				password[c + l + d] = special;
-			}	
+			}
 		}
 		if (c + l + s < SIZE_PERSONAL)
 		{
@@ -116,7 +116,7 @@ char* personalPassword(char* password)
 				s = SIZE_PERSONAL - (l + c);
 			if (c != 0 && s != 0 && l != 0)
 			{
-				g= SIZE_PERSONAL - (c + l + s);
+				g = SIZE_PERSONAL - (c + l + s);
 			}
 			for (int j = 0; j < c; ++j)
 			{
@@ -138,17 +138,37 @@ char* personalPassword(char* password)
 			for (int d = 0; d < g; d++)
 			{
 				char special = '!' + ((rand() % 31));
-				password[c + l +s+ d] = special;
-			}			
+				password[c + l + s + d] = special;
+			}
 		}
 	}
-	shaker(password,SIZE_PERSONAL);
-	
+	shaker(password, SIZE_PERSONAL);
+
+}
+void saveFile(char* pass)
+{
+#ifdef _WIN32
+	printf("Your password file is in source code file\n");
+	FILE* fW = fopen("deneme.txt", "w");
+	if (!fW)
+		fprintf(stderr,"File don't opened!\n");
+	fprintf(fW, pass);
+	fclose(fW);
+#else
+	printf("Your password file is in /home/\n");
+	FILE* fL = fopen("/home/password.txt", "w");
+	if (!fL) fprintf(stderr, "File don't opened...\n");
+	fprintf(fL, pass);
+	fclose(fL);
+
+#endif // Detect O.S
+
 }
 
 void main()
 {
-	for(int i =2 ;i>1;)
+	setlocale(LC_ALL, "Turkish");
+	for (int i = 2; i > 1;)
 	{
 		printf("1- automatic password generator\n2- Customized Password Generator.\n0-EXIT\n9-CLEANER\n");
 		int choose;
@@ -164,7 +184,14 @@ void main()
 			for (int i = 0; i < SIZE; ++i)
 				printf("%c", password[i]);
 			printf("\n");
-			b ? printf("\nYour password is STRONG!\n") : printf("\nYour password NOT SECURE! Please try again...\n");
+			if (b)
+			{
+				printf("\nYour password is STRONG!\n");
+				saveFile(password);
+
+			}
+			else  printf("\nYour password NOT SECURE! Please try again...\n");
+			
 
 		}
 
@@ -178,18 +205,35 @@ void main()
 			printf("Your customized Password is:");
 			for (int i = 0; i < SIZE_PERSONAL; ++i)
 				printf("%c", passPersonal[i]);
-			b ? printf("\nYour password is STRONG!\n") : printf("\nYour password NOT SECURE! Please try again...\n");
+			if (b)
+			{
+				printf("\nYour password is STRONG!\n");
+				saveFile(passPersonal);
 
+			}
+			else  printf("\nYour password NOT SECURE! Please try again...\n");
+			
 		}
 		if (choose == 0) break;
-		if (choose == 9) system("CLS");
+		if (choose == 9) {
+#ifdef _WIN32
+			system("cls");
+#else
+			system("clear");
+#endif // _WIN32
+
+		}
 
 
 	}
-	
 
-	
-	
-	
-	
+
+
+
+
+
 }
+	
+	
+	
+	
